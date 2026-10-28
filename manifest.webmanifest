@@ -1,0 +1,52 @@
+{
+  "id": "./",
+  "name": "ОМА — материалы и мастера",
+  "short_name": "ОМА",
+  "description": "Кабинет клиента и мастера: паспорт объекта, чат, смета из каталога и оплата.",
+  "lang": "ru",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f5f5f5",
+  "theme_color": "#450b7b",
+  "categories": ["shopping", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Кабинет клиента",
+      "short_name": "Клиент",
+      "description": "Паспорт объекта, корзина и чат с мастером",
+      "url": "./client.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Кабинет мастера",
+      "short_name": "Мастер",
+      "description": "Паспорт клиента, смета и живая корзина",
+      "url": "./master.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
