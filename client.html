@@ -20,7 +20,7 @@
   <main class="container">
     <section class="cabinet-head">
       <div>
-        <span class="eyebrow">Версия клиента</span>
+        <span class="eyebrow">Личный кабинет</span>
         <h1>Кабинет клиента</h1>
         <p>Выберите мастера, обсудите проект в чате и получите от него готовую корзину с материалами. Состав можно менять — мастер увидит правки сразу. После оплаты выберите время доставки и приезда мастера.</p>
       </div>
@@ -35,25 +35,20 @@
 
     <div class="demo-bar">
       <span><b>Демо:</b> откройте <a href="master.html" target="_blank" rel="noopener">кабинет мастера</a> в соседней вкладке — чат, корзина и оплата синхронизируются между вкладками в реальном времени.</span>
-      <span class="demo-bar__short"><b>Демо:</b> откройте <a href="master.html" target="_blank" rel="noopener">кабинет мастера</a> в соседней вкладке — данные синхронизируются.</span>
       <button class="link-button" id="demo-reset" type="button">Сбросить демо-данные</button>
     </div>
 
     <div class="cabinet">
       <section class="cabinet__main">
-        <article class="panel passport" id="object-passport">
+        <article class="panel" id="object-passport">
           <div class="panel__head">
             <div>
               <h2>Паспорт объекта</h2>
-              <p class="panel__hint">Опишите помещение, проблему и бюджет — мастер увидит паспорт и подберёт материалы под него.</p>
+              <p class="panel__hint">Опишите дом или помещение, проблему, бюджет и материалы. Мастер увидит эти данные и подберёт вариант по бюджету.</p>
             </div>
-            <div class="panel__tools">
-              <span class="chip" id="passport-state">черновик</span>
-              <button class="link-button passport__toggle" type="button" data-passport-toggle aria-expanded="false">заполнить</button>
-            </div>
+            <span class="chip" id="passport-state">черновик</span>
           </div>
-          <div class="passport__bar" id="passport-bar"></div>
-          <div class="passport__body" id="passport-body"></div>
+          <div id="passport-body"></div>
         </article>
 
         <article class="panel" id="chat">

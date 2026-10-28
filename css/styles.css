@@ -234,6 +234,16 @@ small { font-size: 12px; }
 .search__btn svg { width: 20px; height: 20px; }
 
 .header-actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+.account-button {
+    padding: 9px 14px;
+    border: 1px solid rgba(255,255,255,.4);
+    border-radius: var(--radius-pill);
+    background: rgba(255,255,255,.12);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+}
+.account-button:hover { background: rgba(255,255,255,.22); }
 .cart-button {
     display: inline-flex;
     align-items: center;
@@ -615,6 +625,39 @@ small { font-size: 12px; }
 
 /* ------------------------------------------------------- выдвижная корзина */
 .modal-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .45); }
+.registration-modal {
+    position: relative;
+    width: min(460px, calc(100% - 32px));
+    margin: 10vh auto 0;
+    padding: 28px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 18px 60px rgba(0,0,0,.2);
+}
+.registration-modal h2 { margin-bottom: 8px; }
+.registration-modal form { display: grid; gap: 12px; margin-top: 18px; }
+.registration-modal label { display: grid; gap: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.registration-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: 28px;
+}
+.registration-roles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.registration-role {
+    display: grid;
+    gap: 4px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    text-align: left;
+}
+.registration-role:hover { border-color: var(--orange); background: #fffaf3; }
+.registration-role small { color: var(--muted); font-weight: 400; }
 .cart {
     position: fixed;
     right: 0;
@@ -650,120 +693,35 @@ small { font-size: 12px; }
     .footer__grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 850px) {
-    .header__inner { flex-wrap: wrap; padding: 12px 16px; gap: 10px 12px; }
-    .search { order: 3; flex-basis: 100%; max-width: none; width: 100%; }
+    .header__inner { flex-wrap: wrap; padding: 14px 20px; }
+    .search { order: 3; flex-basis: 100%; max-width: none; }
     .header-actions { margin-left: auto; }
     .catalog-layout { grid-template-columns: 1fr; }
     .detail-grid { grid-template-columns: 1fr; }
     .section-heading { flex-direction: column; align-items: stretch; }
     .controls > * { flex: 1; min-width: 0; }
     .master-grid { grid-template-columns: 1fr; }
-    .hero__content { padding: 34px 24px; }
-    .hero__visual { min-height: 200px; padding: 24px; }
-    .hero__visual::before { width: 240px; height: 240px; }
-    .footer__grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
-    :root { --radius: 10px; }
-    .container { padding: 0 16px; }
     .promo-strip { font-size: 10.5px; letter-spacing: .3px; padding: 8px 10px; }
     .promo-strip__full { display: none; }
     .promo-strip__short { display: inline; }
-    .topbar__inner { padding: 6px 16px; gap: 8px 14px; }
     .topbar__links { display: none; }
-    /* на телефоне шапка не липнет, липким остаётся только меню */
-    .header { position: relative; }
-    .header__inner { padding: 10px 16px; gap: 8px 10px; }
-    .logo img { height: 28px; }
+    .header__inner { flex-wrap: wrap; gap: 10px 12px; padding: 12px 16px; }
+    .logo img { height: 30px; }
     .header-actions { gap: 8px; }
     .cart-button { padding: 8px 10px; }
     .cart-button span { display: none; }
     .cart-button svg { width: 17px; height: 17px; }
     .role-switch__item { padding: 6px 9px; font-size: 11px; }
     .search { order: 3; flex-basis: 100%; height: 40px; }
-    .nav { position: sticky; top: 0; z-index: 25; }
-    .nav__inner { padding: 0 12px; gap: 0; }
-    .nav a { padding: 11px 10px; font-size: 11.5px; }
-    .nav__catalog { padding: 9px 12px !important; margin-right: 4px; }
-    .nav__burger { font-size: 14px; }
-
-    .hero { margin: 14px 0 10px; }
-    .hero__content { padding: 26px 18px; }
-    .hero__content h1 { font-size: 27px; }
-    .hero__content p { font-size: 13.5px; line-height: 1.55; }
-    .hero__visual { display: none; }
-    .hero-actions { display: grid; gap: 8px; margin-top: 20px; }
-    .hero-actions .button { width: 100%; }
-    .hero__facts { gap: 10px 18px; margin-top: 20px; }
-    .hero__facts b { font-size: 14px; }
-
-    .feature-row { grid-template-columns: 1fr; gap: 10px; }
-    .feature-card { padding: 14px 16px; }
-    .feature-icon { width: 38px; height: 38px; }
-    .section-heading h2 { font-size: 22px; }
-    .controls { flex-direction: column; }
-    .input, .select { width: 100%; }
-    .catalog-section { padding: 20px 0 26px; }
-    .filters { padding: 14px; }
-    .steps { grid-template-columns: 1fr; gap: 10px; }
-    .step { padding: 18px 16px; }
-    .roles-band { gap: 12px; }
-    .role-card { padding: 22px 18px; }
-    .role-card h2 { font-size: 22px; }
-
+    .feature-row { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
     .product-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     .product-card { padding: 10px; }
     .product-card h3 { font-size: 12.5px; }
     .product-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
     .add-button { width: 100%; }
-
-    .page-intro { padding: 22px 0 14px; }
-    .page-intro h1 { font-size: 30px; }
-    .page-intro p { font-size: 13.5px; }
-    .master-card { padding: 16px; }
-    .estimate-panel { padding: 18px; }
-
-    .detail { padding: 16px 0 36px; }
-    .detail-image { aspect-ratio: 1 / 1; }
-    .detail-info { padding: 16px; }
-    .specs { grid-template-columns: 1fr; }
     .detail-actions { flex-direction: column; }
-    .related { margin-top: 26px; }
-    .related h2 { font-size: 20px; }
-
-    .footer { padding: 26px 0 18px; }
-    .footer__grid { grid-template-columns: 1fr; gap: 18px; }
     .cart { padding: 16px; }
-}
-
-/* очень узкие экраны (iPhone SE и подобные) */
-@media (max-width: 380px) {
-    .header__inner { gap: 8px; padding: 9px 12px; }
-    /* логотип, переключатель версий и корзина в одной строке */
-    .header-actions { display: contents; }
-    .logo { order: 1; }
-    .role-switch { order: 2; align-self: center; }
-    .cart-button { order: 3; margin-left: auto; }
-    .search { order: 4; }
-    .logo img { height: 26px; }
-    .role-switch { padding: 2px; }
-    .role-switch__item { padding: 5px 7px; font-size: 10px; }
-    .cart-button { padding: 7px 8px; gap: 6px; }
-    .cart-button b { min-width: 20px; height: 20px; font-size: 11px; }
-    .search { height: 38px; }
-    .search input { font-size: 12.5px; padding: 0 12px; }
-    .search__btn { width: 44px; }
-    .nav a { padding: 10px 8px; font-size: 11px; }
-    .nav__catalog { padding: 8px 10px !important; }
-    .container { padding: 0 12px; }
-    .hero__content { padding: 22px 14px; }
-    .hero__content h1 { font-size: 24px; }
-    .hero__content p { font-size: 13px; }
-    .panel__head h2 { font-size: 22px; }
-    .cabinet-head h1 { font-size: 24px; }
-    .product-grid { gap: 8px; }
-    .product-card { padding: 8px; }
-    .product-card h3 { font-size: 12px; }
-    .add-button { font-size: 11.5px; padding: 8px 10px; }
-    .chip { font-size: 10.5px; padding: 4px 8px; }
 }

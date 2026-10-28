@@ -52,19 +52,17 @@
             '<button class="search__btn" type="submit" aria-label="Найти">' + ICON_SEARCH + '</button>' +
             '</form>' +
             '<div class="header-actions">' +
-            '<div class="role-switch" aria-label="Версия сайта">' +
-            '<a class="role-switch__item' + (page === 'client' ? ' is-active' : '') + '" href="client.html">Клиент</a>' +
-            '<a class="role-switch__item' + (page === 'master' ? ' is-active' : '') + '" href="master.html">Мастер PRO</a>' +
-            '</div>' +
+            '<button class="account-button" id="account-open" type="button">Войти / регистрация</button>' +
             '<button class="cart-button" id="cart-open" type="button">' + ICON_CART +
             '<span>Корзина</span><b id="cart-count">0</b></button>' +
             '</div></div></header>' +
             '<nav class="nav"><div class="nav__inner">' +
             '<a class="nav__catalog' + (page === 'catalog' ? ' active' : '') + '" href="index.html#catalog">' +
             '<span class="nav__burger">☰</span>Каталог</a>' +
-            navItem('masters.html', 'Выбор мастера', 'masters', 'nav__link--blue') +
-            navItem('client.html', 'Кабинет клиента', 'client', 'nav__link--purple') +
-            navItem('master.html', 'Кабинет мастера', 'master', 'nav__link--green') +
+            navItem('masters.html', 'Услуги мастера', 'masters', 'nav__link--blue') +
+            navItem('client.html#object-passport', 'Паспорта объектов', 'passport', 'nav__link--purple') +
+            navItem('client.html#chat', 'Чаты', 'chat', 'nav__link--green') +
+            '<a href="client.html">Кабинет</a>' +
             '<a href="index.html?search=%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B">Инструменты</a>' +
             '<a href="index.html?search=%D0%9A%D1%80%D0%B0%D1%81%D0%BA%D0%B8">Краски</a>' +
             '<a href="index.html?search=%D0%9E%D1%81%D0%B2%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D0%B5">Освещение</a>' +
@@ -96,7 +94,48 @@
                 }
             });
         }
+        var accountButton = document.getElementById('account-open');
+        if (accountButton) accountButton.addEventListener('click', openRegistration);
         updateCartBadge();
+    }
+
+    function openRegistration() {
+        var existing = document.getElementById('registration-backdrop');
+        if (existing) existing.remove();
+        var backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop';
+        backdrop.id = 'registration-backdrop';
+        backdrop.innerHTML =
+            '<section class="registration-modal" role="dialog" aria-modal="true" aria-labelledby="registration-title">' +
+            '<button class="registration-modal__close" type="button" data-close-registration aria-label="Закрыть">×</button>' +
+            '<span class="eyebrow">ОМА</span><h2 id="registration-title">Войти или зарегистрироваться</h2>' +
+            '<p class="note">Выберите роль один раз — нужный кабинет откроется после регистрации.</p>' +
+            '<form id="registration-form">' +
+            '<label><span>Имя</span><input class="input" name="name" required placeholder="Как к вам обращаться"></label>' +
+            '<label><span>Телефон или e-mail</span><input class="input" name="contact" required placeholder="+375..."></label>' +
+            '<div class="registration-roles">' +
+            '<button class="registration-role" type="submit" data-role="client"><b>Я заказчик</b><small>Паспорта объектов, чат и заказ</small></button>' +
+            '<button class="registration-role" type="submit" data-role="master"><b>Я мастер</b><small>Услуги, заявки и сметы</small></button>' +
+            '</div></form></section>';
+        document.body.append(backdrop);
+        backdrop.addEventListener('click', function (event) {
+            if (event.target === backdrop || event.target.closest('[data-close-registration]')) {
+                backdrop.remove();
+                return;
+            }
+            var roleButton = event.target.closest('[data-role]');
+            if (!roleButton) return;
+            event.preventDefault();
+            var form = document.getElementById('registration-form');
+            var data = new FormData(form);
+            if (!data.get('name') || !data.get('contact')) return;
+            localStorage.setItem('oma:profile', JSON.stringify({
+                name: String(data.get('name')).trim(),
+                contact: String(data.get('contact')).trim(),
+                role: roleButton.dataset.role
+            }));
+            location.href = roleButton.dataset.role === 'master' ? 'master.html' : 'client.html';
+        });
     }
 
     /* -------------------------------------------------------------- подвал */
@@ -224,6 +263,9 @@
 
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') closeCartDrawer();
+        });
+        document.addEventListener('click', function (event) {
+            if (event.target.closest('[data-open-registration]')) openRegistration();
         });
 
         if (settings.onState) {

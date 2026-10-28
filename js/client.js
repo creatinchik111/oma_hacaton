@@ -12,21 +12,10 @@
         search: '',
         category: 'Все',
         showPicker: false,
-        lastMessageCount: 0,
-        passportOpen: false,
-        passportSavedAt: null
+        lastMessageCount: 0
     };
 
     function state() { return OMA.getState(); }
-
-    function escapeHTML(value) {
-        return String(value === null || value === undefined ? '' : value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
 
     function line(productId) {
         return state().clientCart.items.filter(function (item) {
@@ -46,104 +35,45 @@
         return (global.TIERS && global.TIERS[product.tier]) || '';
     }
 
-    /* ------------------------------------------------------- паспорт объекта */
-
-    function passportFormHTML(passport) {
-        var types = ['Квартира', 'Дом', 'Комната', 'Офис'];
-        return '<form class="passport-form" id="passport-form">' +
-            '<div class="form-grid">' +
-            '<label><span>Тип объекта</span><select class="select" name="objectType">' +
-            types.map(function (type) {
-                return '<option' + (passport.objectType === type ? ' selected' : '') + '>' + type + '</option>';
-            }).join('') + '</select></label>' +
-            '<label><span>Бюджет на материалы, BYN</span>' +
-            '<input class="input" type="number" min="0" step="50" name="budget" value="' + Number(passport.budget) + '"></label>' +
-            '</div>' +
-            '<label><span>Из чего состоит объект</span>' +
-            '<textarea class="textarea" name="rooms" rows="3" placeholder="Например: кухня — 10 м², ванная — 6 м²">' +
-            escapeHTML(passport.rooms) + '</textarea></label>' +
-            '<label><span>Какая проблема и что нужно сделать</span>' +
-            '<textarea class="textarea" name="problem" rows="3" placeholder="Опишите задачу для мастера">' +
-            escapeHTML(passport.problem) + '</textarea></label>' +
-            '<button class="button button-dark button--sm" type="submit">Сохранить паспорт</button>' +
-            '</form>' +
-            '<div class="passport-materials">' +
-            '<h3>Материалы клиента</h3>' +
-            '<div class="passport-materials__list" id="passport-materials"></div>' +
-            '<div class="passport-add">' +
-            '<select class="select" id="passport-product" aria-label="Материал">' +
-            OMA.products().map(function (product) {
-                return '<option value="' + product.id + '">' + escapeHTML(product.name) + ' · ' + money(product.price) + ' BYN</option>';
-            }).join('') + '</select>' +
-            '<input class="input" id="passport-qty" type="number" min="1" max="99" value="1" aria-label="Количество">' +
-            '<button class="button button-ghost button--sm" type="button" data-add-passport-material>Добавить</button>' +
-            '</div></div>';
-    }
-
-    function renderPassportBar(passport) {
-        var bar = $('#passport-bar');
-        if (!bar) return;
-        bar.innerHTML = '<div class="passport__row">' +
-            '<div class="passport__stat"><span>Объект</span><b>' + escapeHTML(passport.objectType) + '</b></div>' +
-            '<div class="passport__stat"><span>Бюджет</span><b>' + money(passport.budget) + ' BYN</b></div>' +
-            '<div class="passport__stat"><span>Материалы</span><b>' + passport.materials.length + '</b></div>' +
-            '</div>';
-    }
-
-    function renderPassportMaterials(passport) {
-        var list = $('#passport-materials');
-        if (!list) return;
-        list.innerHTML = passport.materials.length
-            ? passport.materials.map(function (item) {
-                return '<div class="passport-material">' +
-                    '<span><b>' + escapeHTML(item.name) + '</b>' +
-                    '<small>' + item.qty + ' шт. · ' + money(item.price) + ' BYN · ' + escapeHTML(item.status) + '</small></span>' +
-                    '<button class="link-button" type="button" data-remove-passport-material="' + item.productId + '">убрать</button>' +
-                    '</div>';
-            }).join('')
-            : '<p class="note">Добавьте материалы, которые уже выбрали или хотите сравнить с альтернативами.</p>';
-    }
-
-    /* Обновляем форму только при изменении данных, чтобы не сбивать ввод. */
     function renderPassport() {
         var current = state();
         var passport = current.objectPassport;
         var body = $('#passport-body');
-        var chip = $('#passport-state');
+        var stateChip = $('#passport-state');
         if (!body || !passport) return;
-
-        if (chip) chip.textContent = passport.updatedAt ? 'сохранён' : 'черновик';
-
-        if (!body.dataset.ready) {
-            body.innerHTML = passportFormHTML(passport);
-            body.dataset.ready = '1';
-            ui.passportSavedAt = passport.updatedAt;
-        } else if (ui.passportSavedAt !== passport.updatedAt) {
-            var form = $('#passport-form');
-            if (form) {
-                form.elements.objectType.value = passport.objectType;
-                form.elements.budget.value = passport.budget;
-                form.elements.rooms.value = passport.rooms;
-                form.elements.problem.value = passport.problem;
-            }
-            ui.passportSavedAt = passport.updatedAt;
-        }
-
-        renderPassportBar(passport);
-        renderPassportMaterials(passport);
-        applyPassportOpen();
-    }
-
-    function applyPassportOpen() {
-        var panel = $('#object-passport');
-        if (!panel) return;
-        panel.classList.toggle('is-open', !!ui.passportOpen);
-        var toggle = panel.querySelector('.passport__toggle');
-        if (toggle) {
-            var saved = !!state().objectPassport.updatedAt;
-            toggle.textContent = ui.passportOpen ? 'свернуть' : (saved ? 'изменить' : 'заполнить');
-            toggle.setAttribute('aria-expanded', ui.passportOpen ? 'true' : 'false');
-        }
+        stateChip.textContent = passport.updatedAt ? 'сохранён' : 'черновик';
+        body.innerHTML =
+            '<div class="passport-toolbar">' +
+            '<label><span>Паспорт объекта</span><select class="select" id="passport-select">' +
+            current.passports.map(function (item) {
+                return '<option value="' + item.id + '"' + (item.id === current.activePassportId ? ' selected' : '') + '>' + item.name + '</option>';
+            }).join('') +
+            '</select></label>' +
+            '<button class="button button-ghost button--sm" type="button" data-create-passport>+ Новый паспорт</button>' +
+            '<button class="link-button" type="button" data-rename-passport>переименовать</button>' +
+            '</div>' +
+            '<form class="passport-form" id="passport-form">' +
+            '<div class="form-grid">' +
+            '<label><span>Тип объекта</span><select class="select" name="objectType">' +
+            ['Квартира', 'Дом', 'Комната', 'Офис'].map(function (type) {
+                return '<option' + (passport.objectType === type ? ' selected' : '') + '>' + type + '</option>';
+            }).join('') + '</select></label>' +
+            '<label><span>Бюджет на материалы, BYN</span><input class="input" type="number" min="0" step="50" name="budget" value="' + passport.budget + '"></label>' +
+            '</div>' +
+            '<label><span>Из чего состоит объект</span><textarea class="textarea" name="rooms" rows="3" placeholder="Например: кухня — 10 м², ванная — 6 м²">' + passport.rooms + '</textarea></label>' +
+            '<label><span>Какая проблема и что нужно сделать</span><textarea class="textarea" name="problem" rows="3" placeholder="Опишите задачу для мастера">' + passport.problem + '</textarea></label>' +
+            '<button class="button button-dark button--sm" type="submit">Сохранить паспорт</button>' +
+            '</form>' +
+            '<div class="passport-materials"><h3>Материалы клиента</h3>' +
+            (passport.materials.length ? passport.materials.map(function (item) {
+                return '<div class="passport-material"><span><b>' + item.name + '</b><small>' + item.qty + ' шт. · ' + item.status + '</small></span>' +
+                    '<button class="link-button" type="button" data-remove-passport-material="' + item.productId + '">убрать</button></div>';
+            }).join('') : '<p class="note">Добавьте материалы, которые клиент уже выбрал или хочет сравнить с альтернативами.</p>') +
+            '<div class="passport-add"><select class="select" id="passport-product">' +
+            OMA.products().map(function (product) {
+                return '<option value="' + product.id + '">' + product.name + ' · ' + money(product.price) + ' BYN</option>';
+            }).join('') + '</select><input class="input" id="passport-qty" type="number" min="1" value="1" aria-label="Количество"><button class="button button-ghost button--sm" type="button" data-add-passport-material>Добавить</button></div>' +
+            '</div>';
     }
 
     /* ------------------------------------------------------------- статус-бар */
@@ -503,50 +433,60 @@
             }
         });
 
-        /* паспорт объекта: сохранение формы */
         document.addEventListener('submit', function (event) {
             var form = event.target;
-            if (!form || form.id !== 'passport-form') return;
+            if (form.id !== 'passport-form') return;
             event.preventDefault();
             var data = new FormData(form);
-            var result = OMA.actions.saveObjectPassport({
+            OMA.actions.saveObjectPassport({
                 objectType: data.get('objectType'),
                 rooms: data.get('rooms'),
                 problem: data.get('problem'),
                 budget: data.get('budget')
             });
-            if (result && result.ok) OMAUI.toast('Паспорт объекта сохранён');
+            OMAUI.toast('Паспорт объекта сохранён');
         });
 
         document.addEventListener('click', function (event) {
             var target = event.target;
-
-            var passportToggle = target.closest('[data-passport-toggle]');
-            if (passportToggle) {
-                ui.passportOpen = !ui.passportOpen;
-                applyPassportOpen();
-                return;
-            }
-
-            var addPassportMaterial = target.closest('[data-add-passport-material]');
-            if (addPassportMaterial) {
-                var productSelect = $('#passport-product');
-                var qtyInput = $('#passport-qty');
-                var added = OMA.actions.addPassportMaterial(Number(productSelect.value), Number(qtyInput.value));
-                if (added && added.ok) OMAUI.toast('Материал добавлен в паспорт');
-                return;
-            }
-
-            var removePassportMaterial = target.closest('[data-remove-passport-material]');
-            if (removePassportMaterial) {
-                OMA.actions.removePassportMaterial(Number(removePassportMaterial.dataset.removePassportMaterial));
-                return;
-            }
-
             var category = target.closest('[data-category]');
             if (category) {
                 ui.category = category.dataset.category;
                 renderCatalog();
+                return;
+            }
+
+            var addPassport = target.closest('[data-add-passport-material]');
+            if (addPassport) {
+                OMA.actions.addPassportMaterial(Number($('#passport-product').value), Number($('#passport-qty').value));
+                OMAUI.toast('Материал добавлен в паспорт');
+                return;
+            }
+
+            var createPassport = target.closest('[data-create-passport]');
+            if (createPassport) {
+                var name = window.prompt('Название нового паспорта объекта', 'Новый объект');
+                if (name !== null) {
+                    OMA.actions.createPassport(name);
+                    OMAUI.toast('Новый паспорт создан');
+                }
+                return;
+            }
+
+            var renamePassport = target.closest('[data-rename-passport]');
+            if (renamePassport) {
+                var currentPassport = OMA.getState().objectPassport;
+                var renamed = window.prompt('Новое название паспорта', currentPassport.name);
+                if (renamed !== null && renamed.trim()) {
+                    OMA.actions.renamePassport(currentPassport.id, renamed);
+                    OMAUI.toast('Название паспорта изменено');
+                }
+                return;
+            }
+
+            var removePassport = target.closest('[data-remove-passport-material]');
+            if (removePassport) {
+                OMA.actions.removePassportMaterial(Number(removePassport.dataset.removePassportMaterial));
                 return;
             }
 
@@ -623,6 +563,13 @@
                     OMAUI.toast(opened.message, 'warn');
                 }
                 return;
+            }
+        });
+
+        document.addEventListener('change', function (event) {
+            if (event.target.id === 'passport-select') {
+                OMA.actions.selectPassport(event.target.value);
+                OMAUI.toast('Паспорт выбран');
             }
         });
     }

@@ -20,7 +20,7 @@
   <main class="container">
     <section class="cabinet-head">
       <div>
-        <span class="eyebrow">Версия мастера · PRO</span>
+        <span class="eyebrow">Кабинет специалиста</span>
         <h1>Кабинет мастера</h1>
         <p>Общайтесь с клиентом, собирайте смету из каталога и делитесь корзиной. Правки клиента и оплата появляются здесь мгновенно.</p>
       </div>
@@ -31,7 +31,6 @@
 
     <div class="demo-bar">
       <span><b>Демо:</b> откройте <a href="client.html" target="_blank" rel="noopener">версию клиента</a> в соседней вкладке — смета, чат и живая корзина синхронизируются в реальном времени.</span>
-      <span class="demo-bar__short"><b>Демо:</b> откройте <a href="client.html" target="_blank" rel="noopener">версию клиента</a> в соседней вкладке — данные синхронизируются.</span>
       <button class="link-button" id="demo-reset" type="button">Сбросить демо-данные</button>
     </div>
 
@@ -39,19 +38,15 @@
 
     <div class="cabinet" style="padding-top:18px">
       <section class="cabinet__main">
-        <article class="panel passport" id="object-passport">
+        <article class="panel" id="object-passport">
           <div class="panel__head">
             <div>
               <h2>Паспорт объекта клиента</h2>
-              <p class="panel__hint">Из чего состоит объект, что нужно сделать, бюджет и материалы — их можно сразу взять в смету.</p>
+              <p class="panel__hint">Здесь видно, из чего состоит объект, какая проблема у клиента, его бюджет и выбранные материалы.</p>
             </div>
-            <div class="panel__tools">
-              <span class="chip chip--yellow" id="master-passport-state">для подбора сметы</span>
-              <button class="link-button passport__toggle" type="button" data-passport-toggle aria-expanded="false">показать</button>
-            </div>
+            <span class="chip chip--yellow">для подбора сметы</span>
           </div>
-          <div class="passport__bar" id="master-passport-bar"></div>
-          <div class="passport__body" id="master-passport-body"></div>
+          <div id="master-passport-body"></div>
         </article>
 
         <article class="panel" id="chat">

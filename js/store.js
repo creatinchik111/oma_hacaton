@@ -75,6 +75,27 @@
                 phone: '+375 29 555-12-34',
                 address: 'Минск, ул. Немига 5, кв. 42'
             },
+            objectPassport: {
+                id: 'passport-1',
+                name: 'Основной объект',
+                objectType: 'Квартира',
+                rooms: 'Ванная комната — 6 м²\nКухня — 10 м²',
+                problem: 'Нужен ремонт ванной: старая плитка демонтирована, требуется новая облицовка и установка смесителя.',
+                budget: 1200,
+                materials: [],
+                updatedAt: 0
+            },
+            passports: [{
+                id: 'passport-1',
+                name: 'Основной объект',
+                objectType: 'Квартира',
+                rooms: 'Ванная комната — 6 м²\nКухня — 10 м²',
+                problem: 'Нужен ремонт ванной: старая плитка демонтирована, требуется новая облицовка и установка смесителя.',
+                budget: 1200,
+                materials: [],
+                updatedAt: 0
+            }],
+            activePassportId: 'passport-1',
             /* мастер, которого выбрал клиент */
             activeMasterId: null,
             /* чаты: ключ chat-<clientId>-<masterId> */
@@ -87,15 +108,6 @@
                 paidAt: null,
                 delivery: null,            /* {id, label} */
                 visit: null,
-                updatedAt: 0
-            },
-            /* паспорт объекта: что за помещение, проблема, бюджет и материалы клиента */
-            objectPassport: {
-                objectType: 'Квартира',
-                rooms: 'Ванная комната — 6 м²\nКухня — 10 м²',
-                problem: 'Нужен ремонт ванной: старая плитка демонтирована, требуется новая облицовка и установка смесителя.',
-                budget: 1200,
-                materials: [],          /* {productId, name, category, price, image, qty, status} */
                 updatedAt: 0
             },
             /* сметы, которые мастера собирают для клиента */
@@ -130,6 +142,23 @@
         if (!Array.isArray(parsed.clientCart.items)) parsed.clientCart.items = [];
         parsed.objectPassport = Object.assign({}, base.objectPassport, parsed.objectPassport || {});
         if (!Array.isArray(parsed.objectPassport.materials)) parsed.objectPassport.materials = [];
+        parsed.objectPassport.id = parsed.objectPassport.id || 'passport-1';
+        parsed.objectPassport.name = parsed.objectPassport.name || 'Основной объект';
+        if (!Array.isArray(parsed.passports) || !parsed.passports.length) {
+            parsed.passports = [parsed.objectPassport];
+        }
+        parsed.passports = parsed.passports.map(function (passport, index) {
+            var fallback = index === 0 ? parsed.objectPassport : base.objectPassport;
+            var normalized = Object.assign({}, fallback, passport || {});
+            normalized.id = normalized.id || 'passport-' + (index + 1);
+            normalized.name = normalized.name || 'Объект ' + (index + 1);
+            normalized.materials = Array.isArray(normalized.materials) ? normalized.materials : [];
+            return normalized;
+        });
+        parsed.activePassportId = parsed.activePassportId || parsed.objectPassport.id || parsed.passports[0].id;
+        parsed.objectPassport = parsed.passports.filter(function (passport) {
+            return passport.id === parsed.activePassportId;
+        })[0] || parsed.passports[0];
         return parsed;
     }
 
@@ -376,12 +405,14 @@
                 var chat = ensureChat(current, masterId);
                 if (current.activeMasterId !== Number(masterId)) {
                     current.activeMasterId = Number(masterId);
+                    chat.passportId = current.activePassportId;
                     pushMessage(chat, {
                         kind: 'system',
                         from: 'system',
                         text: 'Вы выбрали мастера ' + master.name + '. Опишите задачу — он соберёт корзину с материалами.'
                     });
                 }
+                if (!chat.passportId) chat.passportId = current.activePassportId;
                 return { ok: true, chatId: chat.id, master: master };
             });
         },
@@ -409,52 +440,96 @@
             });
         },
 
-        /* --- паспорт объекта --------------------------------------------- */
-
         saveObjectPassport: function (details) {
             return commit(function (current) {
-                var passport = current.objectPassport;
+                var passport = current.passports.filter(function (item) {
+                    return item.id === current.activePassportId;
+                })[0] || current.objectPassport;
                 passport.objectType = String(details.objectType || '').trim() || 'Квартира';
                 passport.rooms = String(details.rooms || '').trim();
                 passport.problem = String(details.problem || '').trim();
                 passport.budget = Math.max(0, Number(details.budget) || 0);
                 passport.updatedAt = Date.now();
+                current.objectPassport = passport;
+                return { ok: true };
+            });
+        },
+
+        createPassport: function (name) {
+            return commit(function (current) {
+                var passport = Object.assign({}, emptyState().objectPassport, {
+                    id: uid('passport'),
+                    name: String(name || '').trim() || 'Новый объект',
+                    rooms: '',
+                    problem: '',
+                    budget: 0,
+                    materials: [],
+                    updatedAt: 0
+                });
+                current.passports.push(passport);
+                current.activePassportId = passport.id;
+                current.objectPassport = passport;
+                return { ok: true, passport: passport };
+            });
+        },
+
+        renamePassport: function (passportId, name) {
+            return commit(function (current) {
+                var passport = current.passports.filter(function (item) { return item.id === passportId; })[0];
+                if (!passport) return { ok: false, reason: 'no-passport' };
+                passport.name = String(name || '').trim() || passport.name;
+                current.objectPassport = passport;
+                return { ok: true };
+            });
+        },
+
+        selectPassport: function (passportId) {
+            return commit(function (current) {
+                var passport = current.passports.filter(function (item) { return item.id === passportId; })[0];
+                if (!passport) return { ok: false, reason: 'no-passport' };
+                current.activePassportId = passport.id;
+                current.objectPassport = passport;
                 return { ok: true, passport: passport };
             });
         },
 
         addPassportMaterial: function (productId, qty) {
             return commit(function (current) {
+                var passport = current.passports.filter(function (item) {
+                    return item.id === current.activePassportId;
+                })[0] || current.objectPassport;
                 var product = productById(productId);
                 if (!product) return { ok: false, reason: 'no-product' };
-                var amount = Math.max(1, Math.min(99, Number(qty) || 1));
-                var existing = current.objectPassport.materials.filter(function (item) {
+                var amount = Math.max(1, Number(qty) || 1);
+                var existing = passport.materials.filter(function (item) {
                     return item.productId === product.id;
                 })[0];
-                if (existing) {
-                    existing.qty += amount;
-                } else {
-                    current.objectPassport.materials.push({
-                        productId: product.id,
-                        name: product.name,
-                        category: product.category,
-                        price: product.price,
-                        image: product.image,
-                        qty: amount,
-                        status: 'Нужно заказать'
-                    });
-                }
-                current.objectPassport.updatedAt = Date.now();
+                if (existing) existing.qty += amount;
+                else passport.materials.push({
+                    productId: product.id,
+                    name: product.name,
+                    category: product.category,
+                    price: product.price,
+                    image: product.image,
+                    qty: amount,
+                    status: 'Нужно заказать'
+                });
+                passport.updatedAt = Date.now();
+                current.objectPassport = passport;
                 return { ok: true };
             });
         },
 
         removePassportMaterial: function (productId) {
             return commit(function (current) {
-                current.objectPassport.materials = current.objectPassport.materials.filter(function (item) {
+                var passport = current.passports.filter(function (item) {
+                    return item.id === current.activePassportId;
+                })[0] || current.objectPassport;
+                passport.materials = passport.materials.filter(function (item) {
                     return item.productId !== Number(productId);
                 });
-                current.objectPassport.updatedAt = Date.now();
+                passport.updatedAt = Date.now();
+                current.objectPassport = passport;
                 return { ok: true };
             });
         },

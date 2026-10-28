@@ -54,18 +54,25 @@
 .is-flashing { outline: 2px solid var(--orange); outline-offset: 3px; transition: outline-color .2s; }
 
 /* --------------------------------------------------------- паспорт объекта */
-.panel__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.passport__toggle { display: none; }
-.passport__bar { display: none; }
-.passport__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.passport__stat { padding: 8px 10px; border-radius: var(--radius-sm); background: var(--purple-soft); }
-.passport__stat span { display: block; color: var(--muted); font-size: 10.5px; }
-.passport__stat b { display: block; margin-top: 2px; font-size: 13px; }
-
 .passport-form { display: grid; gap: 12px; }
-.passport-form label { display: grid; gap: 6px; }
-.passport-form label > span { color: var(--muted); font-size: 11px; font-weight: 700; }
+.passport-form label, .passport-add { display: grid; gap: 6px; }
+.passport-form label > span {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+}
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.passport-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+}
+.passport-toolbar label { display: grid; gap: 5px; min-width: min(100%, 260px); }
+.passport-toolbar label span { color: var(--muted); font-size: 11px; font-weight: 700; }
 .textarea {
     width: 100%;
     min-height: 78px;
@@ -79,10 +86,8 @@
     resize: vertical;
 }
 .textarea:focus { outline: 0; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(248, 151, 40, .16); }
-
 .passport-materials { display: grid; gap: 8px; margin-top: 18px; }
 .passport-materials h3 { margin: 0 0 2px; font-size: 14px; }
-.passport-materials__list { display: grid; gap: 8px; }
 .passport-material, .master-material {
     display: grid;
     gap: 8px;
@@ -94,26 +99,16 @@
 .passport-material { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
 .passport-material b, .master-material b { display: block; font-size: 13px; }
 .passport-material small, .master-material small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
-.passport-add { display: grid; grid-template-columns: minmax(0, 1fr) 70px auto; gap: 6px; align-items: center; margin-top: 4px; }
+.passport-add { grid-template-columns: minmax(0, 1fr) 70px auto; align-items: center; margin-top: 4px; }
 .passport-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .passport-summary > div { padding: 10px 12px; border-radius: var(--radius-sm); background: var(--purple-soft); }
 .passport-summary span, .passport-detail > b { display: block; color: var(--muted); font-size: 11px; }
 .passport-summary b { display: block; margin-top: 3px; font-size: 14px; }
 .passport-detail { margin-top: 14px; }
-.passport-detail p { margin: 4px 0 0; font-size: 13px; line-height: 1.5; white-space: pre-line; }
-
-.master-material { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
-.master-material .material-alternatives, .master-material > .note { grid-column: 1 / -1; }
-.material-alternatives {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 10px;
-    padding-top: 6px;
-    border-top: 1px solid var(--line);
-}
+.passport-detail p { margin: 4px 0 0; color: var(--text); font-size: 13px; line-height: 1.5; white-space: pre-line; }
+.material-alternatives { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding-top: 4px; border-top: 1px solid var(--line); }
 .material-alternatives span { color: var(--muted); font-size: 11px; }
-.material-alternatives .link-button { font-size: 11px; text-align: left; }
+.material-alternatives .link-button { font-size: 11px; }
 
 /* --------------------------------------------------------- демо-подсказка */
 .demo-bar {
@@ -132,7 +127,6 @@
     line-height: 1.5;
 }
 .demo-bar > span { flex: 1 1 420px; min-width: 0; }
-.demo-bar__short { display: none; }
 .demo-bar b { color: var(--text); }
 .demo-bar a { color: var(--blue-link); font-weight: 500; }
 .link-button {
@@ -600,82 +594,26 @@
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* --------------------------------------------------------------- адаптив */
-/* --------------------------------------------------------------- адаптив */
 @media (max-width: 1100px) {
-    .cabinet { grid-template-columns: minmax(0, 1fr); }
-    .cabinet > .panel { min-width: 0; }
+    .cabinet { grid-template-columns: 1fr; }
     .cabinet-head { grid-template-columns: 1fr; align-items: start; }
     .product-grid--dense { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
-    /* на узких экранах панели идут в один поток: паспорт → чат → мастер → корзина → каталог */
-    .cabinet__main, .cabinet__side { display: contents; }
-    body[data-page="client"] #object-passport { order: 1; }
-    body[data-page="client"] #chat { order: 2; }
-    body[data-page="client"] #master-panel { order: 3; }
-    body[data-page="client"] #cart { order: 4; }
-    body[data-page="client"] #catalog { order: 5; }
-    body[data-page="client"] #order { order: 6; }
-
-    body[data-page="master"] #object-passport { order: 1; }
-    body[data-page="master"] #chat { order: 2; }
-    body[data-page="master"] #builder { order: 3; }
-    body[data-page="master"] #catalog { order: 4; }
-    body[data-page="master"] #live-cart { order: 5; }
-    body[data-page="master"] #orders { order: 6; }
 }
 @media (max-width: 850px) {
-    .cabinet-head { padding: 18px 0 14px; }
+    .cabinet-head { padding-top: 22px; }
     .cabinet-head__side { align-items: flex-start; }
     .who { text-align: left; }
     .statusbar { justify-content: flex-start; }
     .panel { padding: 16px; }
-    .chat { height: 62vh; min-height: 360px; max-height: 520px; }
-    .cabinet-head p { font-size: 13px; line-height: 1.55; }
+    .chat { height: 420px; }
 }
 @media (max-width: 560px) {
-    /* паспорт на телефоне — свёрнутая карточка-аккордеон */
-    .passport__toggle { display: inline; }
-    .passport__bar { display: block; margin-bottom: 4px; }
-    .passport__body { display: none; }
-    .passport.is-open .passport__body { display: block; }
-    .passport.is-open .passport__bar { display: none; }
-    .panel__tools { width: 100%; justify-content: space-between; }
-    .passport-form { gap: 10px; }
-    .form-grid { grid-template-columns: 1fr; gap: 10px; }
-    .textarea { min-height: 66px; font-size: 12.5px; padding: 9px 11px; }
-    .passport-add { grid-template-columns: minmax(0, 1fr) 64px; }
+    .form-grid, .passport-summary { grid-template-columns: 1fr; }
+    .passport-add { grid-template-columns: 1fr 64px; }
     .passport-add .button { grid-column: 1 / -1; }
-    .passport-summary { gap: 8px; }
-    .passport-detail { margin-top: 12px; }
-    .master-material { grid-template-columns: 1fr; }
-    .master-material .button { width: 100%; }
-    .passport-material b, .master-material b { font-size: 12.5px; }
-
     .product-grid--dense { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .cabinet { padding: 4px 0 36px; gap: 14px; }
+    .cabinet { padding-bottom: 40px; }
     .cabinet-head h1 { font-size: 26px; }
-    .cabinet-head p { display: none; }
-    .panel { padding: 14px; }
-    .panel__head { gap: 8px; margin-bottom: 12px; }
-    .panel__head h2 { font-size: 18px; }
-    .panel__hint { font-size: 12px; }
-    .demo-bar { padding: 10px 12px; font-size: 11.5px; line-height: 1.45; }
-    .demo-bar > span { display: none; }
-    .demo-bar > .demo-bar__short { display: inline; flex: 1 1 100%; }
-    .chat { height: 58vh; min-height: 320px; max-height: 460px; }
-    .chat__head small { font-size: 10.5px; }
-    .msg { max-width: 92%; font-size: 12.5px; }
-    .chat-cart { padding: 12px; }
-    .cart-line { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 10px; }
-    .cart-line img { width: 48px; height: 48px; }
-    .cart-line__name { font-size: 12.5px; }
-    .cart-total-row b { font-size: 19px; }
-    .paid-banner { font-size: 12px; }
-    .slots { gap: 5px; }
-    .slot { padding: 8px 10px; font-size: 11.5px; }
-    .timeline__row { grid-template-columns: 22px minmax(0, 1fr); row-gap: 2px; }
-    .timeline__when { grid-column: 2; text-align: left; }
-    .schedule__row { font-size: 12.5px; }
     .master-bar { padding: 14px; gap: 12px; }
     .master-bar__right { width: 100%; margin-left: 0; flex-wrap: wrap; gap: 8px; }
     .master-bar__right > label { display: none; }
@@ -683,8 +621,4 @@
     .master-bar__right .button { flex: none; }
     .builder-line { grid-template-columns: minmax(0, 1fr) auto; }
     .builder-line__sum { display: none; }
-    .mini-catalog { max-height: 300px; }
-    .order-card__schedule { font-size: 11.5px; }
-    .toast { font-size: 12px; padding: 11px 14px; }
-    #toast-host { left: 12px; right: 12px; bottom: 12px; max-width: none; }
 }
